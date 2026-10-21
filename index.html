@@ -1,0 +1,3018 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Vault Messenger — Dark Aesthetic Edition</title>
+  
+  <!-- Fonts: Newsreader (closest match to Tiempos Text) + Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-canvas: #050607;
+      --bg-surface-0: #0a0b0d;
+      --bg-surface-1: #101215;
+      --bg-surface-2: #16181d;
+      --bg-surface-3: #1f2229;
+      --bg-glass: rgba(18, 20, 24, 0.72);
+      
+      --border-subtle: rgba(255, 255, 255, 0.07);
+      --border-medium: rgba(255, 255, 255, 0.14);
+      --border-bright: rgba(255, 255, 255, 0.28);
+      
+      --text-main: #f5f6f8;
+      --text-secondary: #8e929b;
+      --text-muted: #565962;
+      --text-dim: #383a42;
+      
+      --accent-white: #ffffff;
+      --accent-black: #050607;
+      --accent-emerald: #34d399;
+      --accent-blue: #38bdf8;
+      
+      --font-serif: 'Newsreader', Georgia, serif;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 14px;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(ellipse at 50% -10%, rgba(255, 255, 255, 0.06), transparent 70%),
+        radial-gradient(ellipse at 85% 85%, rgba(60, 65, 80, 0.05), transparent 50%);
+    }
+
+    /* Ambient noise overlay for analog/liquid luxury feel */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.025;
+      z-index: 999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    /* Top Master Bar Controls */
+    .master-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 430px;
+      margin-bottom: 16px;
+      gap: 12px;
+    }
+
+    .view-mode-pills {
+      display: flex;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: 9999px;
+      padding: 3px;
+      backdrop-filter: blur(16px);
+      gap: 2px;
+    }
+
+    .pill-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-spring);
+    }
+
+    .pill-btn:hover {
+      color: #fff;
+    }
+
+    .pill-btn.active {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .vault-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.03);
+      padding: 5px 12px;
+      border-radius: 9999px;
+      border: 1px solid var(--border-subtle);
+      letter-spacing: 0.2px;
+    }
+
+    .glow-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      box-shadow: 0 0 8px rgba(52, 211, 153, 0.8);
+      animation: pulseGlow 2.5s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+
+    /* iPhone Frame Shell */
+    .device-shell {
+      position: relative;
+      width: 100%;
+      max-width: 412px;
+      height: 844px;
+      background: var(--bg-surface-0);
+      border-radius: 52px;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      box-shadow: 
+        0 0 0 10px #111317,
+        0 0 0 11px rgba(255, 255, 255, 0.05),
+        0 30px 80px -15px rgba(0, 0, 0, 0.95),
+        inset 0 1px 1px rgba(255, 255, 255, 0.15);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* Dynamic Island & iOS Status Bar */
+    .ios-status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 28px 6px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #fff;
+      z-index: 40;
+    }
+
+    .island-container {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 96px;
+      height: 25px;
+      background: #000;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 9px;
+      gap: 7px;
+      cursor: pointer;
+      transition: width 0.3s var(--ease-spring), height 0.3s var(--ease-spring);
+    }
+
+    .island-lens-inner {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #0d1016;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: inset 0 0 4px #000;
+    }
+
+    .island-sensor {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #0a0b0e;
+    }
+
+    /* Step progress capsules (from screenshot!) */
+    .step-bars {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin: 12px 0 6px;
+    }
+
+    .step-bar-item {
+      width: 22px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 3px;
+      transition: all 0.3s ease;
+    }
+
+    .step-bar-item.active {
+      background: #ffffff;
+      width: 32px;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+    }
+
+    /* Screen Viewport & Views */
+    .screens-wrapper {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .screen-view {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 10px 22px 20px;
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.985) translateY(6px);
+      transition: opacity 0.28s var(--ease-out), transform 0.28s var(--ease-spring);
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+
+    .screen-view::-webkit-scrollbar {
+      display: none;
+    }
+
+    .screen-view.is-active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: scale(1) translateY(0);
+    }
+
+    /* Typography Classes */
+    .serif-heading {
+      font-family: var(--font-serif);
+      font-weight: 400;
+      font-size: 36px;
+      line-height: 1.12;
+      color: #ffffff;
+      letter-spacing: -0.4px;
+    }
+
+    .serif-heading.center {
+      text-align: center;
+    }
+
+    .sub-caption {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      font-weight: 400;
+      line-height: 1.4;
+      margin-top: 6px;
+    }
+
+    .sub-caption.center {
+      text-align: center;
+    }
+
+    /* Distinctive 8-ray Asterisk Logo from screenshots */
+    .asterisk-badge {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 10px auto 14px;
+      color: #fff;
+      animation: gentleRotate 20s linear infinite;
+    }
+
+    @keyframes gentleRotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Primary White Pill Button (exact match) */
+    .btn-pill-primary {
+      width: 100%;
+      background: #ffffff;
+      color: #050607;
+      border: none;
+      border-radius: 9999px;
+      padding: 16px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 
+        0 8px 25px -4px rgba(255, 255, 255, 0.2),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+      transition: all 0.2s var(--ease-spring);
+      margin-top: auto;
+      flex-shrink: 0;
+    }
+
+    .btn-pill-primary:hover {
+      background: #f4f4f6;
+      transform: translateY(-1.5px);
+      box-shadow: 0 12px 30px -4px rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-pill-primary:active {
+      transform: translateY(1px) scale(0.99);
+      box-shadow: 0 4px 14px rgba(255, 255, 255, 0.15);
+    }
+
+    /* Input Pill with glow */
+    .input-box {
+      position: relative;
+      width: 100%;
+      margin: 22px 0 14px;
+    }
+
+    .input-pill {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      color: #ffffff;
+      padding: 16px 20px;
+      font-size: 15px;
+      font-family: var(--font-sans);
+      outline: none;
+      transition: all 0.25s ease;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    .input-pill:focus {
+      border-color: rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: 
+        0 0 0 3px rgba(255, 255, 255, 0.06),
+        inset 0 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .input-pill::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Language Selection Rows */
+    .lang-list {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      margin: 18px 0 22px;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+
+    .lang-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid transparent;
+      border-radius: 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .lang-card:hover {
+      background: rgba(255, 255, 255, 0.055);
+      border-color: rgba(255, 255, 255, 0.08);
+      transform: translateX(2px);
+    }
+
+    .lang-card.selected {
+      background: rgba(255, 255, 255, 0.065);
+      border-color: rgba(255, 255, 255, 0.18);
+    }
+
+    .lang-title {
+      font-size: 15px;
+      font-weight: 500;
+      color: #fff;
+    }
+
+    .lang-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .radio-target {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .lang-card.selected .radio-target {
+      border-color: #ffffff;
+    }
+
+    .lang-card.selected .radio-target::after {
+      content: '';
+      width: 9px;
+      height: 9px;
+      background: #ffffff;
+      border-radius: 50%;
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+    }
+
+    /* Screen 1: Chats Navigation & Filter Tabs */
+    .chats-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0 14px;
+    }
+
+    .btn-circle-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-circle-icon:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--border-medium);
+    }
+
+    .chats-filter-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .filter-chip {
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid var(--border-subtle);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .filter-chip.active {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Search Box */
+    .search-capsule {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 11px 16px;
+      margin-bottom: 16px;
+      transition: all 0.2s ease;
+    }
+
+    .search-capsule:focus-within {
+      border-color: rgba(255, 255, 255, 0.28);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .search-capsule input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 13.5px;
+      font-family: var(--font-sans);
+      width: 100%;
+    }
+
+    .search-capsule input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* Stories / Online Avatars */
+    .stories-tray {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 14px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .story-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .story-outer-ring {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      padding: 2px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s ease;
+    }
+
+    .story-unit:hover .story-outer-ring {
+      transform: scale(1.05);
+    }
+
+    .story-outer-ring.dimmed {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .story-inner-avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--bg-surface-2);
+      border: 2px solid var(--bg-surface-0);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .story-name {
+      font-size: 11px;
+      color: var(--text-secondary);
+      max-width: 54px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Conversation Items */
+    .dialogue-stream {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .chat-item-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 14px;
+      border-radius: 20px;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .chat-item-row:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .chat-item-row.is-pinned::before {
+      content: '';
+      position: absolute;
+      left: 2px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 20px;
+      border-radius: 3px;
+      background: #ffffff;
+      opacity: 0.6;
+    }
+
+    .avatar-wrapper {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      flex-shrink: 0;
+    }
+
+    .avatar-circle {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #252830, #131418);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .online-indicator {
+      position: absolute;
+      bottom: 1px;
+      right: 1px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      border: 2.5px solid var(--bg-surface-0);
+    }
+
+    .chat-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .chat-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 4px;
+    }
+
+    .chat-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #ffffff;
+      letter-spacing: -0.2px;
+    }
+
+    .chat-timestamp {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+    }
+
+    .chat-message-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chat-preview-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .unread-badge {
+      background: #ffffff;
+      color: #050607;
+      font-size: 11px;
+      font-weight: 700;
+      min-width: 19px;
+      height: 19px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 6px;
+      box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+      flex-shrink: 0;
+    }
+
+    /* Screen 2: Active Chat Detailed Screen */
+    .active-chat-wrapper {
+      padding: 4px 14px 18px !important;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .dialogue-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 6px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .dialogue-partner-info {
+      text-align: center;
+    }
+
+    .dialogue-partner-info h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .dialogue-partner-info span {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    /* Message Bubbles Flow */
+    .messages-scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .date-divider {
+      align-self: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid var(--border-subtle);
+      padding: 4px 14px;
+      border-radius: 9999px;
+      font-family: var(--font-sans);
+    }
+
+    .bubble {
+      max-width: 82%;
+      padding: 13px 17px;
+      border-radius: 20px;
+      font-size: 14px;
+      line-height: 1.45;
+      position: relative;
+      animation: popIn 0.25s var(--ease-spring);
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(8px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .bubble-incoming {
+      align-self: flex-start;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: #f1f2f5;
+      border-bottom-left-radius: 4px;
+      backdrop-filter: blur(10px);
+    }
+
+    .bubble-outgoing {
+      align-self: flex-end;
+      background: #ffffff;
+      color: #050607;
+      border-bottom-right-radius: 4px;
+      box-shadow: 0 4px 18px rgba(255, 255, 255, 0.08);
+      font-weight: 500;
+    }
+
+    .bubble-meta {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 4px;
+      font-size: 10px;
+      margin-top: 5px;
+      opacity: 0.75;
+    }
+
+    .bubble-incoming .bubble-meta {
+      color: var(--text-muted);
+    }
+
+    .bubble-outgoing .bubble-meta {
+      color: #555;
+    }
+
+    /* Secret Disappearing Message Card */
+    .secret-vault-card {
+      align-self: flex-start;
+      max-width: 86%;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 20px;
+      padding: 14px 16px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .secret-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .secret-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: var(--accent-emerald);
+      font-family: var(--font-mono);
+    }
+
+    .secret-timer {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.06);
+      padding: 2px 8px;
+      border-radius: 9999px;
+    }
+
+    .secret-content-snippet {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: #e5e7eb;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      margin-top: 6px;
+      user-select: all;
+    }
+
+    /* Voice Note Bubble with Audio Bars */
+    .voice-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 230px;
+      cursor: pointer;
+    }
+
+    .play-btn-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #ffffff;
+      color: #050607;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform 0.2s ease;
+      box-shadow: 0 2px 10px rgba(255, 255, 255, 0.2);
+    }
+
+    .play-btn-circle:hover {
+      transform: scale(1.08);
+    }
+
+    .waveform-visualizer {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 28px;
+      flex: 1;
+    }
+
+    .wave-bar {
+      width: 2.5px;
+      background: rgba(255, 255, 255, 0.35);
+      border-radius: 2px;
+      transition: height 0.2s ease, background 0.2s ease;
+    }
+
+    .wave-bar.active {
+      background: #ffffff;
+    }
+
+    /* Interactive Bottom Bar */
+    .chat-input-dock {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .input-capsule-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: 9999px;
+      padding: 7px 16px;
+      gap: 10px;
+      transition: all 0.2s ease;
+    }
+
+    .input-capsule-container:focus-within {
+      border-color: rgba(255, 255, 255, 0.28);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .input-capsule-container input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 14px;
+      font-family: var(--font-sans);
+    }
+
+    .input-capsule-container input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .send-arrow-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #ffffff;
+      color: #050607;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(255, 255, 255, 0.15);
+      transition: all 0.2s var(--ease-spring);
+    }
+
+    .send-arrow-btn:hover {
+      transform: scale(1.06);
+    }
+
+    .send-arrow-btn:active {
+      transform: scale(0.94);
+    }
+
+    /* Side Menu (Slide Drawer from screenshot 'SideMenuView') */
+    .side-menu-drawer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 310px;
+      background: rgba(14, 16, 20, 0.95);
+      backdrop-filter: blur(28px);
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 60;
+      transform: translateX(-100%);
+      transition: transform 0.35s var(--ease-spring);
+      display: flex;
+      flex-direction: column;
+      padding: 50px 24px 28px;
+      box-shadow: 20px 0 50px rgba(0, 0, 0, 0.8);
+    }
+
+    .side-menu-drawer.is-open {
+      transform: translateX(0);
+    }
+
+    .side-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 55;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .side-backdrop.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .drawer-profile-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .drawer-profile-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #30353e, #14171d);
+      border: 1.5px solid rgba(255, 255, 255, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .drawer-nav-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .drawer-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .drawer-nav-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+
+    .drawer-nav-item.active {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
+    /* iOS Home Swipe Bar */
+    .home-swipe-line {
+      width: 124px;
+      height: 4.5px;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 9999px;
+      margin: 8px auto 6px;
+      flex-shrink: 0;
+    }
+
+    /* Wireframe Globe SVG */
+    .globe-mesh-svg {
+      width: 64px;
+      height: 64px;
+      stroke: rgba(255, 255, 255, 0.85);
+      fill: none;
+      margin: 14px auto 12px;
+      display: block;
+      animation: gentleFloat 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes gentleFloat {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-4px); }
+    }
+
+    /* ============================================================
+       PLATFORM SWITCHER (Mobile vs PC Desktop)
+       ============================================================ */
+    .platform-switcher-bar {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      margin-bottom: 20px;
+      z-index: 100;
+    }
+
+    .platform-pill-toggle {
+      display: flex;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-medium);
+      border-radius: 9999px;
+      padding: 4px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6);
+      gap: 4px;
+    }
+
+    .platform-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 20px;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.25s var(--ease-spring);
+    }
+
+    .platform-btn:hover {
+      color: #fff;
+    }
+
+    .platform-btn.active {
+      background: #ffffff;
+      color: #050607;
+      font-weight: 600;
+      box-shadow: 0 2px 14px rgba(255, 255, 255, 0.25);
+    }
+
+    #mobile-platform-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    /* ============================================================
+       AVANT-GARDE PC DESKTOP WORKSTATION: "NOTE VAULT CONSOLE"
+       (Unique Architectural Luxury Dark Mode)
+       ============================================================ */
+    #desktop-platform-wrapper {
+      display: none;
+      width: 100%;
+      max-width: 1420px;
+      height: 870px;
+      background: #060709;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 28px;
+      box-shadow: 
+        0 0 0 1px rgba(255, 255, 255, 0.05),
+        0 40px 100px -20px rgba(0, 0, 0, 0.98),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      overflow: hidden;
+      flex-direction: column;
+      user-select: none;
+      position: relative;
+    }
+
+    /* Ambient CRT / Vault Scanline Subtle Glow */
+    #desktop-platform-wrapper::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.04), transparent 60%);
+      z-index: 1;
+    }
+
+    /* Top Command Ribbon / HUD */
+    .pc-hud-ribbon {
+      height: 52px;
+      background: rgba(10, 12, 16, 0.92);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      position: relative;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .pc-hud-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .pc-traffic-lights {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pc-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+    .pc-dot.red { background: #ff5f56; border: 1px solid #e0443e; }
+    .pc-dot.yellow { background: #ffbd2e; border: 1px solid #dea123; }
+    .pc-dot.green { background: #27c93f; border: 1px solid #1aab29; }
+
+    .pc-hud-title {
+      font-family: var(--font-serif);
+      font-size: 19px;
+      font-weight: 400;
+      color: #fff;
+      letter-spacing: -0.2px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pc-badge-pill {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      padding: 3px 9px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      letter-spacing: 0.3px;
+    }
+
+    .pc-hud-center {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .pc-hud-node-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #34d399;
+      background: rgba(52, 211, 153, 0.08);
+      border: 1px solid rgba(52, 211, 153, 0.2);
+      padding: 4px 10px;
+      border-radius: 9999px;
+    }
+
+    .pc-hud-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pc-hud-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-family: var(--font-sans);
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .pc-hud-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border-color: var(--border-medium);
+    }
+
+    /* Main Bento Console Split */
+    .pc-bento-viewport {
+      display: grid;
+      grid-template-columns: 80px 330px 1fr 310px;
+      flex: 1;
+      height: calc(100% - 52px);
+      overflow: hidden;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* 1. Tactile Dock (Far Left) */
+    .pc-tactile-dock {
+      background: #07080a;
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 0;
+    }
+
+    .pc-tactile-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02));
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 19px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+      transition: transform 0.2s ease;
+    }
+
+    .pc-tactile-logo:hover {
+      transform: scale(1.06);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .pc-dock-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .pc-dock-icon-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .pc-dock-icon-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .pc-dock-icon-btn.active {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(255, 255, 255, 0.18);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    }
+
+    .pc-dock-icon-btn .badge-beacon {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+    }
+
+    .pc-dock-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2a2e36, #121418);
+      border: 1.5px solid rgba(255, 255, 255, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #fff;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .pc-dock-avatar::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #34d399;
+      border: 2px solid #07080a;
+    }
+
+    /* 2. Enclave Matrix / Navigator (Column 2) */
+    .pc-matrix-col {
+      background: #090b0e;
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .pc-matrix-header {
+      padding: 18px 18px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .pc-matrix-tabs {
+      display: flex;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 3px;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      gap: 2px;
+    }
+
+    .pc-matrix-tab-btn {
+      flex: 1;
+      padding: 6px 0;
+      font-size: 11.5px;
+      font-weight: 500;
+      text-align: center;
+      border-radius: 9px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .pc-matrix-tab-btn.active {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .pc-matrix-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 8px 12px;
+      transition: all 0.2s ease;
+    }
+
+    .pc-matrix-search:focus-within {
+      border-color: rgba(255, 255, 255, 0.28);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .pc-matrix-search input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 12.5px;
+      font-family: var(--font-sans);
+      width: 100%;
+    }
+
+    .pc-matrix-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* Enclave Node Card */
+    .pc-enclave-node {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid transparent;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .pc-enclave-node:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.08);
+      transform: translateX(2px);
+    }
+
+    .pc-enclave-node.active {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.18);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+    }
+
+    .pc-enclave-glyph {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: #12141a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #fff;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .pc-enclave-node.active .pc-enclave-glyph {
+      border-color: rgba(255, 255, 255, 0.35);
+      background: linear-gradient(135deg, #222630, #14161d);
+    }
+
+    .pc-enclave-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .pc-enclave-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 3px;
+    }
+
+    .pc-enclave-name {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: -0.15px;
+    }
+
+    .pc-enclave-time {
+      font-size: 10.5px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    .pc-enclave-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pc-enclave-preview {
+      font-size: 12px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 170px;
+    }
+
+    .pc-security-tier {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      padding: 1.5px 5px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+    }
+
+    /* 3. Main Stream / Transmission Console (Column 3) */
+    .pc-transmission-col {
+      background: #060709;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .pc-transmission-header {
+      height: 64px;
+      padding: 0 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(8, 9, 12, 0.7);
+      backdrop-filter: blur(20px);
+      flex-shrink: 0;
+    }
+
+    .pc-partner-meta {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .pc-partner-name-block h3 {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-weight: 400;
+      color: #fff;
+      letter-spacing: -0.2px;
+    }
+
+    .pc-partner-name-block span {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pc-header-action-cluster {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pc-hud-action-pill {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 7px 12px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .pc-hud-action-pill:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border-color: var(--border-medium);
+    }
+
+    .pc-hud-action-pill.active {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Transmission Flow with Timeline Axis */
+    .pc-transmissions-stream {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 32px 100px; /* Space for floating dock */
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+    }
+
+    /* Editorial Timeline Transmission Unit */
+    .pc-transmission-card {
+      display: flex;
+      flex-direction: column;
+      max-width: 72%;
+      animation: popIn 0.25s var(--ease-spring);
+    }
+
+    .pc-transmission-card.incoming {
+      align-self: flex-start;
+    }
+
+    .pc-transmission-card.outgoing {
+      align-self: flex-end;
+    }
+
+    .pc-transmission-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10.5px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .pc-transmission-card.outgoing .pc-transmission-card-header {
+      justify-content: flex-end;
+    }
+
+    .pc-transmission-bubble {
+      padding: 14px 18px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.5;
+      position: relative;
+    }
+
+    .pc-transmission-card.incoming .pc-transmission-bubble {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015));
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      color: #f0f2f5;
+      border-top-left-radius: 4px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .pc-transmission-card.outgoing .pc-transmission-bubble {
+      background: #ffffff;
+      color: #050607;
+      font-weight: 500;
+      border-top-right-radius: 4px;
+      box-shadow: 0 6px 24px rgba(255, 255, 255, 0.12);
+    }
+
+    /* Teenage Engineering Style Tactile Audio Deck */
+    .pc-tactile-audio-deck {
+      background: #0e1014;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .pc-tape-play-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform 0.2s ease;
+    }
+
+    .pc-tape-play-btn:hover {
+      transform: scale(1.08);
+    }
+
+    .pc-spectrum-bars {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 24px;
+      flex: 1;
+    }
+
+    .pc-spec-bar {
+      width: 3px;
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 2px;
+      transition: all 0.15s ease;
+    }
+
+    .pc-spec-bar.lit {
+      background: #ffffff;
+    }
+
+    /* Floating Capsule Composer Console */
+    .pc-floating-dock-console {
+      position: absolute;
+      bottom: 20px;
+      left: 32px;
+      right: 32px;
+      z-index: 20;
+    }
+
+    .pc-floating-console-frame {
+      background: rgba(14, 16, 22, 0.88);
+      backdrop-filter: blur(28px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 24px;
+      padding: 10px 18px 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 
+        0 16px 40px -10px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+      transition: all 0.25s ease;
+    }
+
+    .pc-floating-console-frame:focus-within {
+      border-color: rgba(255, 255, 255, 0.35);
+      box-shadow: 
+        0 20px 50px -10px rgba(0, 0, 0, 0.9),
+        0 0 0 1px rgba(255, 255, 255, 0.12),
+        0 0 20px rgba(255, 255, 255, 0.05);
+    }
+
+    .pc-floating-console-frame input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 14px;
+      font-family: var(--font-sans);
+    }
+
+    .pc-floating-console-frame input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .pc-console-pill-send {
+      background: #ffffff;
+      color: #050607;
+      border: none;
+      border-radius: 9999px;
+      padding: 9px 20px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2);
+      transition: all 0.2s var(--ease-spring);
+      flex-shrink: 0;
+    }
+
+    .pc-console-pill-send:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+    }
+
+    /* 4. Cryptographic Inspector HUD (Column 4) */
+    .pc-cipher-hud-col {
+      background: #080a0d;
+      border-left: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 22px 20px;
+      transition: width 0.3s var(--ease-spring), opacity 0.3s ease;
+    }
+
+    .pc-cipher-hud-col.hidden {
+      width: 0;
+      padding: 0;
+      opacity: 0;
+      border-left: none;
+      pointer-events: none;
+    }
+
+    /* Live Entropy Matrix Animation */
+    .pc-entropy-matrix-box {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      line-height: 1.5;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 10px 12px;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+    }
+
+    .pc-entropy-matrix-box span.active {
+      color: var(--accent-emerald);
+      font-weight: 600;
+    }
+
+    .pc-inspector-title {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .pc-dial-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Global Platform Switcher (Mobile vs Desktop) -->
+  <div class="platform-switcher-bar">
+    <div class="platform-pill-toggle">
+      <button id="platform-btn-mobile" class="platform-btn active" onclick="switchPlatform('mobile')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="3"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        <span>Мобильная версия</span>
+      </button>
+      <button id="platform-btn-desktop" class="platform-btn" onclick="switchPlatform('desktop')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        <span>ПК версия (macOS / Web)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Platform Container (Completely Unaltered) -->
+  <div id="mobile-platform-wrapper">
+
+  <!-- Top Controller Tabs -->
+  <div class="master-controls">
+    <div class="view-mode-pills">
+      <button class="pill-btn active" onclick="goToScreen('chats')">Чаты</button>
+      <button class="pill-btn" onclick="goToScreen('dialogue')">Диалог</button>
+      <button class="pill-btn" onclick="goToScreen('auth')">Вход (Email)</button>
+      <button class="pill-btn" onclick="goToScreen('lang')">Язык</button>
+    </div>
+
+    <div class="vault-tag">
+      <span class="glow-dot"></span>
+      <span>OLED 120Hz</span>
+    </div>
+  </div>
+
+  <!-- Main Mobile Frame Container -->
+  <div class="device-shell">
+    
+    <!-- iOS Dynamic Island & Status Bar -->
+    <div class="ios-status-bar">
+      <span id="live-clock">22:35</span>
+      <div class="island-container" onclick="toggleIsland()">
+        <div class="island-sensor"></div>
+        <div class="island-lens-inner"></div>
+      </div>
+      <div style="display:flex; align-items:center; gap: 6px;">
+        <svg width="15" height="11" viewBox="0 0 15 11" fill="none"><path d="M1 9.5C1 9.5 2.5 5.5 7.5 5.5C12.5 5.5 14 9.5 14 9.5M3 11C3 11 4.5 8 7.5 8C10.5 8 12 11 12 11M7.5 11H7.51" stroke="#fff" stroke-width="1.2" stroke-linecap="round"/></svg>
+        <span style="font-size: 11px; font-weight: 700;">5G</span>
+        <svg width="19" height="10" viewBox="0 0 22 11" fill="none"><rect x="0.5" y="0.5" width="18" height="10" rx="3.5" stroke="#fff"/><rect x="2" y="2" width="13" height="7" rx="2" fill="#fff"/><path d="M20 3.5V7.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+
+    <!-- Side Menu Overlay & Drawer (from Xcode 'SideMenuView') -->
+    <div id="side-backdrop" class="side-backdrop" onclick="toggleSideMenu(false)"></div>
+    <div id="side-menu" class="side-menu-drawer">
+      <div class="drawer-profile-card">
+        <div class="drawer-profile-avatar">NV</div>
+        <div>
+          <div style="font-size: 16px; font-weight: 600; color: #fff;">Alexandre</div>
+          <div style="font-size: 12px; color: var(--accent-emerald); font-family: var(--font-mono); margin-top: 2px;">● Vault ID: #8821</div>
+        </div>
+      </div>
+
+      <div class="drawer-nav-group">
+        <div class="drawer-nav-item active" onclick="goToScreen('chats'); toggleSideMenu(false);">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Зашифрованные чаты</span>
+        </div>
+        <div class="drawer-nav-item" onclick="goToScreen('lang'); toggleSideMenu(false);">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          <span>Языковые настройки</span>
+        </div>
+        <div class="drawer-nav-item" onclick="goToScreen('auth'); toggleSideMenu(false);">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span>Ключи безопасности</span>
+        </div>
+        <div class="drawer-nav-item">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>Параметры хранилища</span>
+        </div>
+      </div>
+
+      <div style="font-size: 11px; color: var(--text-muted); text-align: center; font-family: var(--font-mono);">
+        Note Vault v2.4.0 • Zero-Knowledge
+      </div>
+    </div>
+
+    <!-- Screen Containers Wrapper -->
+    <div class="screens-wrapper">
+
+      <!-- ================= SCREEN 1: CHATS LIST ================= -->
+      <div id="view-chats" class="screen-view is-active">
+        <div class="chats-top-bar">
+          <div class="btn-circle-icon" onclick="toggleSideMenu(true)" title="Меню">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="16" y2="18"/></svg>
+          </div>
+
+          <div class="vault-tag">
+            <span class="glow-dot"></span>
+            <span>E2EE Vault Active</span>
+          </div>
+
+          <div class="btn-circle-icon" onclick="openNewChatPrompt()">
+            <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </div>
+        </div>
+
+        <h1 class="serif-heading" style="margin-bottom: 4px;">Messages</h1>
+        <p class="sub-caption" style="margin-bottom: 16px;">End-to-end encrypted personal node</p>
+
+        <!-- Search Bar with real-time filtering -->
+        <div class="search-capsule">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="chatSearchInput" placeholder="Поиск сообщений или контактов..." oninput="filterChats(this.value)">
+        </div>
+
+        <!-- Filter Chips -->
+        <div class="chats-filter-tabs">
+          <div class="filter-chip active" onclick="setFilter(this, 'all')">Все</div>
+          <div class="filter-chip" onclick="setFilter(this, 'vault')">✦ Private Vault</div>
+          <div class="filter-chip" onclick="setFilter(this, 'unread')">Непрочитанные</div>
+          <div class="filter-chip" onclick="setFilter(this, 'media')">Медиа</div>
+        </div>
+
+        <!-- Stories / Online Avatars -->
+        <div class="stories-tray">
+          <div class="story-unit" onclick="goToScreen('dialogue')">
+            <div class="story-outer-ring">
+              <div class="story-inner-avatar">✦</div>
+            </div>
+            <span class="story-name">Мой Vault</span>
+          </div>
+          <div class="story-unit" onclick="openChatWith('Alexandre R.')">
+            <div class="story-outer-ring">
+              <div class="story-inner-avatar">AR</div>
+            </div>
+            <span class="story-name">Alexandre</span>
+          </div>
+          <div class="story-unit" onclick="openChatWith('Elena Voronova')">
+            <div class="story-outer-ring dimmed">
+              <div class="story-inner-avatar">EL</div>
+            </div>
+            <span class="story-name">Elena</span>
+          </div>
+          <div class="story-unit" onclick="openChatWith('Mikhail K.')">
+            <div class="story-outer-ring dimmed">
+              <div class="story-inner-avatar">MK</div>
+            </div>
+            <span class="story-name">Mikhail</span>
+          </div>
+          <div class="story-unit" onclick="openChatWith('Daria S.')">
+            <div class="story-outer-ring dimmed">
+              <div class="story-inner-avatar">DS</div>
+            </div>
+            <span class="story-name">Daria</span>
+          </div>
+        </div>
+
+        <!-- Dialogue List -->
+        <div class="dialogue-stream" id="dialogueList">
+          
+          <div class="chat-item-row is-pinned" onclick="openChatWith('Alexandre R.')" data-name="alexandre r.">
+            <div class="avatar-wrapper">
+              <div class="avatar-circle">AR</div>
+              <div class="online-indicator"></div>
+            </div>
+            <div class="chat-details">
+              <div class="chat-meta-row">
+                <span class="chat-title">Alexandre R.</span>
+                <span class="chat-timestamp">22:34</span>
+              </div>
+              <div class="chat-message-row">
+                <span class="chat-preview-text">Архитектура ключей готова к релизу...</span>
+                <span class="unread-badge">2</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-item-row" onclick="openChatWith('Private Vault Bot')" data-name="private vault bot">
+            <div class="avatar-wrapper">
+              <div class="avatar-circle" style="background: radial-gradient(circle, #2a2e36, #0d0f12); color: #fff;">✦</div>
+            </div>
+            <div class="chat-details">
+              <div class="chat-meta-row">
+                <span class="chat-title">Private Vault Bot</span>
+                <span class="chat-timestamp">19:42</span>
+              </div>
+              <div class="chat-message-row">
+                <span class="chat-preview-text">Ключи сессии успешно сохранены локально</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-item-row" onclick="openChatWith('Elena Voronova')" data-name="elena voronova">
+            <div class="avatar-wrapper">
+              <div class="avatar-circle">EV</div>
+            </div>
+            <div class="chat-details">
+              <div class="chat-meta-row">
+                <span class="chat-title">Elena Voronova</span>
+                <span class="chat-timestamp">Вчера</span>
+              </div>
+              <div class="chat-message-row">
+                <span class="chat-preview-text">Голосовое сообщение (0:34) 🎙️</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-item-row" onclick="openChatWith('Mikhail K.')" data-name="mikhail k.">
+            <div class="avatar-wrapper">
+              <div class="avatar-circle">MK</div>
+            </div>
+            <div class="chat-details">
+              <div class="chat-meta-row">
+                <span class="chat-title">Mikhail K.</span>
+                <span class="chat-timestamp">18 окт</span>
+              </div>
+              <div class="chat-message-row">
+                <span class="chat-preview-text">Макет SwiftUI залит в репозиторий</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ================= SCREEN 2: ACTIVE DIALOGUE ================= -->
+      <div id="view-dialogue" class="screen-view active-chat-wrapper">
+        <div class="dialogue-header">
+          <button class="btn-circle-icon" onclick="goToScreen('chats')" style="width: 34px; height: 34px;">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <div class="dialogue-partner-info">
+            <h3 id="dialogueActiveName">Alexandre R.</h3>
+            <span><span class="glow-dot" style="width:5px; height:5px;"></span> zero-knowledge encrypted</span>
+          </div>
+          <button class="btn-circle-icon" style="width: 34px; height: 34px;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+          </button>
+        </div>
+
+        <!-- Chat Stream -->
+        <div class="messages-scroll-area" id="messagesContainer">
+          <div class="date-divider">Сегодня, 22 октября</div>
+
+          <div class="bubble bubble-incoming">
+            Привет! Мы перенесли всю эстетику из Xcode: Tiempos Text для заголовков, матовый графит и чистый монохром.
+            <div class="bubble-meta">22:24</div>
+          </div>
+
+          <div class="bubble bubble-outgoing">
+            Выглядит великолепно. Белые капсульные кнопки дают четкий акцент, а темный фон не слепит ночью.
+            <div class="bubble-meta">22:27 • ✓✓</div>
+          </div>
+
+          <!-- Secret Self-Destruct Message Card -->
+          <div class="secret-vault-card">
+            <div class="secret-card-header">
+              <div class="secret-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span>SECRET VAULT KEY</span>
+              </div>
+              <span class="secret-timer">🔥 24h</span>
+            </div>
+            <div style="font-size: 11.5px; color: var(--text-secondary); margin-bottom: 2px;">
+              Одноразовый ключ сессии:
+            </div>
+            <div class="secret-content-snippet">
+              vault_sk_99a7e2b104c99e82a
+            </div>
+            <div class="bubble-meta" style="margin-top: 6px;">22:29</div>
+          </div>
+
+          <!-- Voice Note Bubble -->
+          <div class="bubble bubble-incoming voice-card" onclick="toggleAudioWave(this)">
+            <div class="play-btn-circle">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="#000"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            </div>
+            <div style="flex: 1;">
+              <div class="waveform-visualizer">
+                <div class="wave-bar active" style="height: 8px;"></div>
+                <div class="wave-bar active" style="height: 14px;"></div>
+                <div class="wave-bar active" style="height: 22px;"></div>
+                <div class="wave-bar active" style="height: 11px;"></div>
+                <div class="wave-bar active" style="height: 19px;"></div>
+                <div class="wave-bar active" style="height: 25px;"></div>
+                <div class="wave-bar" style="height: 13px;"></div>
+                <div class="wave-bar" style="height: 20px;"></div>
+                <div class="wave-bar" style="height: 26px;"></div>
+                <div class="wave-bar" style="height: 16px;"></div>
+                <div class="wave-bar" style="height: 9px;"></div>
+                <div class="wave-bar" style="height: 21px;"></div>
+                <div class="wave-bar" style="height: 8px;"></div>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-muted); margin-top:4px;">
+                <span class="audio-timer">0:18</span>
+                <span>0:34</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bubble bubble-outgoing">
+            Прослушал. Отправляю изменения в мастер-ветку!
+            <div class="bubble-meta">22:32 • ✓✓</div>
+          </div>
+        </div>
+
+        <!-- Input Bar with Send Handler -->
+        <div class="chat-input-dock">
+          <button class="btn-circle-icon" style="border:none; background:transparent;" onclick="triggerSecretAttachment()">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          
+          <div class="input-capsule-container">
+            <input type="text" id="messageInputField" placeholder="Зашифрованное сообщение..." onkeydown="if(event.key==='Enter') sendMessageNow()">
+            <button class="btn-circle-icon" style="border:none; background:transparent; width:auto; height:auto; padding:0;" onclick="simulateVoiceRecord()">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+            </button>
+          </div>
+
+          <button class="send-arrow-btn" onclick="sendMessageNow()">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ================= SCREEN 3: AUTH (ENTER YOUR EMAIL) ================= -->
+      <!-- Exact match to reference screenshot with step indicator & asterisk -->
+      <div id="view-auth" class="screen-view">
+        <div class="step-bars">
+          <div class="step-bar-item active"></div>
+          <div class="step-bar-item"></div>
+          <div class="step-bar-item"></div>
+        </div>
+
+        <div class="asterisk-badge">
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="12" y1="2" x2="12" y2="22"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+            <line x1="19.07" y1="4.93" x2="4.93" y2="19.07"/>
+          </svg>
+        </div>
+
+        <div style="flex: 1; display:flex; flex-direction:column; justify-content:center; margin-top:-20px;">
+          <h2 class="serif-heading center">Enter your email</h2>
+          <p class="sub-caption center">For login and account recovery</p>
+
+          <div class="input-box">
+            <input type="email" id="authEmailInput" class="input-pill" placeholder="alex@vault.io" value="alexandre@vault.io" style="text-align: center;">
+          </div>
+
+          <div style="font-size: 11.5px; color: var(--text-muted); text-align: center; line-height: 1.5; padding: 0 10px;">
+            A cryptographic curve25519 keypair will be derived locally on this device.
+          </div>
+        </div>
+
+        <button class="btn-pill-primary" onclick="goToScreen('lang')">
+          <span>Continue</span>
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+
+      <!-- ================= SCREEN 4: CHOOSE YOUR LANGUAGE ================= -->
+      <!-- Exact match to reference screenshot with globe wireframe -->
+      <div id="view-lang" class="screen-view">
+        <div class="step-bars">
+          <div class="step-bar-item"></div>
+          <div class="step-bar-item active"></div>
+          <div class="step-bar-item"></div>
+        </div>
+
+        <svg class="globe-mesh-svg" viewBox="0 0 24 24" stroke-width="1.2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M2 12h20"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+
+        <h2 class="serif-heading center">Choose your language</h2>
+        <p class="sub-caption center">Select your preferred system locale</p>
+
+        <div class="lang-list">
+          <div class="lang-card" onclick="selectLanguageCard(this)">
+            <div>
+              <div class="lang-title">Русский</div>
+              <div class="lang-sub">Russian</div>
+            </div>
+            <div class="radio-target"></div>
+          </div>
+
+          <div class="lang-card" onclick="selectLanguageCard(this)">
+            <div>
+              <div class="lang-title">Українська</div>
+              <div class="lang-sub">Ukrainian</div>
+            </div>
+            <div class="radio-target"></div>
+          </div>
+
+          <div class="lang-card selected" onclick="selectLanguageCard(this)">
+            <div>
+              <div class="lang-title">English</div>
+              <div class="lang-sub">English</div>
+            </div>
+            <div class="radio-target"></div>
+          </div>
+
+          <div class="lang-card" onclick="selectLanguageCard(this)">
+            <div>
+              <div class="lang-title">Deutsch</div>
+              <div class="lang-sub">German</div>
+            </div>
+            <div class="radio-target"></div>
+          </div>
+
+          <div class="lang-card" onclick="selectLanguageCard(this)">
+            <div>
+              <div class="lang-title">Français</div>
+              <div class="lang-sub">French</div>
+            </div>
+            <div class="radio-target"></div>
+          </div>
+        </div>
+
+        <button class="btn-pill-primary" onclick="goToScreen('chats')">
+          <span>Continue</span>
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- iOS Home Indicator -->
+    <div class="home-swipe-line"></div>
+  </div>
+  </div>
+  <!-- End of Mobile Platform Container -->
+
+  <!-- ============================================================
+       PC / DESKTOP VERSION SHELL
+       ============================================================ -->
+  <div id="desktop-platform-wrapper">
+    <!-- Top Command Ribbon / HUD -->
+    <div class="pc-hud-ribbon">
+      <div class="pc-hud-left">
+        <div class="pc-traffic-lights">
+          <div class="pc-dot red"></div>
+          <div class="pc-dot yellow"></div>
+          <div class="pc-dot green"></div>
+        </div>
+        <div class="pc-hud-title">
+          <span>Note Vault</span>
+          <span style="font-size: 13px; color: var(--text-muted); font-family: var(--font-mono);">// console v2.4</span>
+          <span class="pc-badge-pill">ZERO-KNOWLEDGE</span>
+        </div>
+      </div>
+
+      <div class="pc-hud-center">
+        <div class="pc-hud-node-status">
+          <span class="glow-dot" style="width:5px; height:5px;"></span>
+          <span>NODE 04 // 14ms</span>
+        </div>
+        <span>CIPHER: X25519-KYBER768</span>
+        <span>•</span>
+        <span>KEY ROTATION: 07:41:19</span>
+      </div>
+
+      <div class="pc-hud-right">
+        <button class="pc-hud-btn" onclick="pcAddVaultSnippet()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span>Generate Key</span>
+        </button>
+        <button class="pc-hud-btn" id="pcInspectorToggleBtn" onclick="pcToggleInfo()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+          <span>Inspector [⌥I]</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Bento Grid Console -->
+    <div class="pc-bento-viewport">
+      
+      <!-- 1. TACTILE DOCK (Far Left) -->
+      <div class="pc-tactile-dock">
+        <div class="pc-tactile-logo" title="Note Vault Matrix">✦</div>
+        
+        <div class="pc-dock-stack">
+          <button class="pc-dock-icon-btn active" title="Enclaves (Чаты)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span class="badge-beacon"></span>
+          </button>
+          <button class="pc-dock-icon-btn" title="Vault Keys (Секретные ключи)">
+            <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </button>
+          <button class="pc-dock-icon-btn" title="Encrypted Notes (Заметки хранилища)">
+            <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </button>
+          <button class="pc-dock-icon-btn" title="Язык и локаль" onclick="switchPlatform('mobile'); goToScreen('lang');">
+            <svg width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </button>
+        </div>
+
+        <div class="pc-dock-avatar" title="Alexandre (Vault ID: #8821)">AR</div>
+      </div>
+
+      <!-- 2. ENCLAVE MATRIX / NAVIGATOR -->
+      <div class="pc-matrix-col">
+        <div class="pc-matrix-header">
+          <div class="pc-matrix-tabs">
+            <button class="pc-matrix-tab-btn active" onclick="pcSwitchMatrixTab(this, 'all')">Enclaves</button>
+            <button class="pc-matrix-tab-btn" onclick="pcSwitchMatrixTab(this, 'keys')">Keys</button>
+            <button class="pc-matrix-tab-btn" onclick="pcSwitchMatrixTab(this, 'notes')">Notes</button>
+          </div>
+
+          <div class="pc-matrix-search">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="pcMatrixSearchInput" placeholder="Поиск анклава или ключа..." oninput="pcSearchChats(this.value)">
+            <kbd style="font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); background: rgba(255,255,255,0.06); padding: 2px 5px; border-radius: 4px;">⌘K</kbd>
+          </div>
+        </div>
+
+        <div class="pc-matrix-list" id="pcMatrixList">
+          
+          <div class="pc-enclave-node active" onclick="pcSelectChat(this, 'Alexandre R.', 'AR', 'LVL-4')" data-name="alexandre r.">
+            <div class="pc-enclave-glyph">AR</div>
+            <div class="pc-enclave-meta">
+              <div class="pc-enclave-top">
+                <span class="pc-enclave-name">Alexandre R.</span>
+                <span class="pc-enclave-time">22:34</span>
+              </div>
+              <div class="pc-enclave-bottom">
+                <span class="pc-enclave-preview">Архитектура ключей готова к релизу...</span>
+                <span class="pc-security-tier">LVL-4</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pc-enclave-node" onclick="pcSelectChat(this, 'Private Vault Agent', '✦', 'SYS-CORE')" data-name="private vault agent">
+            <div class="pc-enclave-glyph" style="background: radial-gradient(circle, #252832, #0d0f14);">✦</div>
+            <div class="pc-enclave-meta">
+              <div class="pc-enclave-top">
+                <span class="pc-enclave-name">Private Vault Agent</span>
+                <span class="pc-enclave-time">19:42</span>
+              </div>
+              <div class="pc-enclave-bottom">
+                <span class="pc-enclave-preview">Локальная сессия синхронизирована</span>
+                <span class="pc-security-tier">SYS-CORE</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pc-enclave-node" onclick="pcSelectChat(this, 'Elena Voronova', 'EV', 'LVL-2')" data-name="elena voronova">
+            <div class="pc-enclave-glyph">EV</div>
+            <div class="pc-enclave-meta">
+              <div class="pc-enclave-top">
+                <span class="pc-enclave-name">Elena Voronova</span>
+                <span class="pc-enclave-time">Вчера</span>
+              </div>
+              <div class="pc-enclave-bottom">
+                <span class="pc-enclave-preview">Аудиодека передана (0:34) 🎙️</span>
+                <span class="pc-security-tier">LVL-2</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="pc-enclave-node" onclick="pcSelectChat(this, 'Mikhail K.', 'MK', 'LVL-3')" data-name="mikhail k.">
+            <div class="pc-enclave-glyph">MK</div>
+            <div class="pc-enclave-meta">
+              <div class="pc-enclave-top">
+                <span class="pc-enclave-name">Mikhail K.</span>
+                <span class="pc-enclave-time">18 окт</span>
+              </div>
+              <div class="pc-enclave-bottom">
+                <span class="pc-enclave-preview">Коммит ветки Note_VaultApp.swift</span>
+                <span class="pc-security-tier">LVL-3</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 3. MAIN TRANSMISSION CONSOLE -->
+      <div class="pc-transmission-col">
+        <!-- Transmission Header -->
+        <div class="pc-transmission-header">
+          <div class="pc-partner-meta">
+            <div class="pc-enclave-glyph" id="pcActiveAvatar" style="width: 42px; height: 42px; font-size: 14px; border-color: rgba(255,255,255,0.25);">AR</div>
+            <div class="pc-partner-name-block">
+              <h3 id="pcActiveTitle">Alexandre R.</h3>
+              <span>
+                <span class="glow-dot" style="width:5px; height:5px;"></span>
+                <span>CURVE25519 VERIFIED • ZERO-LOGS</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="pc-header-action-cluster">
+            <div class="pc-hud-action-pill" title="Защищенный голосовой канал">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <span>Secure Audio</span>
+            </div>
+            <div class="pc-hud-action-pill" title="Хэш-верификация">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+              <span>#8821</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transmission Stream -->
+        <div class="pc-transmissions-stream" id="pcMessagesContainer">
+          <div class="date-divider" style="margin-bottom: 4px;">Сессия: 22 октября // Блок #9104</div>
+
+          <!-- Incoming Editorial Transmission -->
+          <div class="pc-transmission-card incoming">
+            <div class="pc-transmission-card-header">
+              <span>ALEXANDRE R.</span>
+              <span>•</span>
+              <span style="color: var(--accent-emerald);">✓ SIGNED</span>
+              <span>•</span>
+              <span>22:24</span>
+            </div>
+            <div class="pc-transmission-bubble">
+              Привет! Мы перенесли всю эстетику из Xcode: Tiempos Text для заголовков, матовый графит и чистый монохром.
+            </div>
+          </div>
+
+          <!-- Outgoing Transmission -->
+          <div class="pc-transmission-card outgoing">
+            <div class="pc-transmission-card-header">
+              <span>YOU (ENCRYPTED)</span>
+              <span>•</span>
+              <span>22:27</span>
+              <span>•</span>
+              <span>✓✓</span>
+            </div>
+            <div class="pc-transmission-bubble">
+              Выглядит великолепно. Белые капсульные кнопки дают четкий акцент, а темный фон не слепит ночью.
+            </div>
+          </div>
+
+          <!-- Secret Burner Cable Card -->
+          <div class="pc-transmission-card incoming" style="max-width: 520px;">
+            <div class="pc-transmission-card-header">
+              <span>ENCRYPTED VAULT PAYLOAD</span>
+              <span>•</span>
+              <span style="color: #ff9f43;">🔥 AUTO-BURN: 24H</span>
+            </div>
+            <div class="secret-vault-card" style="width: 100%;">
+              <div class="secret-card-header">
+                <div class="secret-badge">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <span>EPHEMERAL SESSION KEY</span>
+                </div>
+                <span class="secret-timer">EXPIRING IN 23:48:11</span>
+              </div>
+              <div class="secret-content-snippet" style="font-size: 13px; color: #fff;">
+                vault_sk_99a7e2b104c99e82a
+              </div>
+            </div>
+          </div>
+
+          <!-- Teenage Engineering Style Tactile Audio Deck -->
+          <div class="pc-transmission-card incoming" style="max-width: 440px;">
+            <div class="pc-transmission-card-header">
+              <span>ENCRYPTED VOICE MEMO // 48kHz FLAC</span>
+              <span>•</span>
+              <span>22:30</span>
+            </div>
+            <div class="pc-tactile-audio-deck" onclick="pcToggleAudio(this)">
+              <div class="pc-tape-play-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#000"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </div>
+              <div style="flex: 1;">
+                <div class="pc-spectrum-bars">
+                  <div class="pc-spec-bar lit" style="height: 8px;"></div>
+                  <div class="pc-spec-bar lit" style="height: 16px;"></div>
+                  <div class="pc-spec-bar lit" style="height: 22px;"></div>
+                  <div class="pc-spec-bar lit" style="height: 12px;"></div>
+                  <div class="pc-spec-bar lit" style="height: 20px;"></div>
+                  <div class="pc-spec-bar lit" style="height: 24px;"></div>
+                  <div class="pc-spec-bar" style="height: 14px;"></div>
+                  <div class="pc-spec-bar" style="height: 18px;"></div>
+                  <div class="pc-spec-bar" style="height: 26px;"></div>
+                  <div class="pc-spec-bar" style="height: 19px;"></div>
+                  <div class="pc-spec-bar" style="height: 10px;"></div>
+                  <div class="pc-spec-bar" style="height: 15px;"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:10px; font-family:var(--font-mono); color:var(--text-muted); margin-top:5px;">
+                  <span class="pc-audio-timer">0:18</span>
+                  <span>0:34 • SPEED: 1.0X</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Outgoing Transmission -->
+          <div class="pc-transmission-card outgoing">
+            <div class="pc-transmission-card-header">
+              <span>YOU (ENCRYPTED)</span>
+              <span>•</span>
+              <span>22:32</span>
+              <span>•</span>
+              <span>✓✓</span>
+            </div>
+            <div class="pc-transmission-bubble">
+              Прослушал. Отправляю изменения в мастер-ветку!
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating Capsule Composer Console -->
+        <div class="pc-floating-dock-console">
+          <div class="pc-floating-console-frame">
+            <button class="pc-hud-btn" style="padding: 5px 8px; font-family: var(--font-mono);" title="Спецкоманды" onclick="pcAddVaultSnippet()">
+              <span>/key</span>
+            </button>
+            <input type="text" id="pcMessageInput" placeholder="Отправить зашифрованное сообщение в анклав Alexandre R. (Enter)..." onkeydown="if(event.key==='Enter') pcSendMessage()">
+            
+            <button class="pc-console-pill-send" onclick="pcSendMessage()">
+              <span>Transmit</span>
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. CIPHER HUD & CRYPTOGRAPHIC INSPECTOR (Column 4) -->
+      <div class="pc-cipher-hud-col" id="pcDetailsPanel">
+        <div class="pc-inspector-title">Live Entropy Matrix</div>
+        <div class="pc-entropy-matrix-box" id="pcEntropyBox">
+          <div>0x9F <span class="active">A2</span> 44 C8 1B EE 90</div>
+          <div>7D 14 <span class="active">E9</span> 88 2A C1 3F 99</div>
+          <div>B0 33 55 <span class="active">4A</span> FE 11 08 77</div>
+        </div>
+
+        <div class="pc-inspector-title">Enclave Node Dossier</div>
+        <div class="pc-dial-row">
+          <span style="color: var(--text-secondary);">Идентификатор:</span>
+          <span style="color: #fff; font-family: var(--font-mono);" id="pcDetailsName">Alexandre R.</span>
+        </div>
+        <div class="pc-dial-row">
+          <span style="color: var(--text-secondary);">Уровень доступа:</span>
+          <span style="color: var(--accent-emerald); font-family: var(--font-mono);" id="pcDetailsTier">SECURITY TIER 4</span>
+        </div>
+        <div class="pc-dial-row">
+          <span style="color: var(--text-secondary);">Vault Token ID:</span>
+          <span style="color: #fff; font-family: var(--font-mono);">#8821-X</span>
+        </div>
+
+        <div class="pc-inspector-title" style="margin-top: 14px;">Криптографический контур</div>
+        <div class="pc-dial-row">
+          <span style="color: var(--text-secondary);">Алгоритм:</span>
+          <span style="color: #fff; font-family: var(--font-mono);">X25519-ChaCha20</span>
+        </div>
+        <div class="pc-dial-row">
+          <span style="color: var(--text-secondary);">Fingerprint:</span>
+          <span style="color: var(--accent-emerald); font-family: var(--font-mono);">SHA: 4b98..ef</span>
+        </div>
+
+        <div class="pc-inspector-title" style="margin-top: 14px;">Таймер автоликвидации</div>
+        <div class="pc-dial-row">
+          <span style="color: var(--text-secondary);">Auto-Burn TTL:</span>
+          <span style="color: #ff9f43; font-weight: 600;">24 часа</span>
+        </div>
+
+        <button class="btn-pill-primary" style="margin-top: 24px; padding: 12px; font-size: 13px;" onclick="alert('Ключи сессии успешно перегенерированы')">
+          <span>Сменить сессионный ключ</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Screen Navigation
+    function goToScreen(screenKey) {
+      document.querySelectorAll('.screen-view').forEach(view => {
+        view.classList.remove('is-active');
+      });
+
+      const target = document.getElementById('view-' + screenKey);
+      if (target) {
+        target.classList.add('is-active');
+      }
+
+      const tabs = document.querySelectorAll('.pill-btn');
+      tabs.forEach(t => t.classList.remove('active'));
+
+      const map = { 'chats': 0, 'dialogue': 1, 'auth': 2, 'lang': 3 };
+      if (tabs[map[screenKey]]) {
+        tabs[map[screenKey]].classList.add('active');
+      }
+    }
+
+    // Side Menu Drawer Toggle
+    function toggleSideMenu(open) {
+      const menu = document.getElementById('side-menu');
+      const backdrop = document.getElementById('side-backdrop');
+      if (open) {
+        menu.classList.add('is-open');
+        backdrop.classList.add('is-open');
+      } else {
+        menu.classList.remove('is-open');
+        backdrop.classList.remove('is-open');
+      }
+    }
+
+    // Language Card Selection
+    function selectLanguageCard(card) {
+      document.querySelectorAll('.lang-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+    }
+
+    // Filter Chips
+    function setFilter(chip, type) {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+
+      const items = document.querySelectorAll('.chat-item-row');
+      items.forEach(item => {
+        if (type === 'all') {
+          item.style.display = 'flex';
+        } else if (type === 'unread') {
+          item.style.display = item.querySelector('.unread-badge') ? 'flex' : 'none';
+        } else if (type === 'vault') {
+          item.style.display = item.textContent.includes('Vault') ? 'flex' : 'none';
+        } else {
+          item.style.display = 'flex';
+        }
+      });
+    }
+
+    // Real-time Chat Search
+    function filterChats(query) {
+      const q = query.toLowerCase().trim();
+      const rows = document.querySelectorAll('.chat-item-row');
+      rows.forEach(row => {
+        const name = row.getAttribute('data-name') || '';
+        const preview = row.querySelector('.chat-preview-text').textContent.toLowerCase();
+        if (name.includes(q) || preview.includes(q)) {
+          row.style.display = 'flex';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    // Open Chat
+    function openChatWith(name) {
+      document.getElementById('dialogueActiveName').textContent = name;
+      goToScreen('dialogue');
+    }
+
+    // Sending Messages Interactively
+    function sendMessageNow() {
+      const input = document.getElementById('messageInputField');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const container = document.getElementById('messagesContainer');
+      const now = new Date();
+      const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+      const outgoing = document.createElement('div');
+      outgoing.className = 'bubble bubble-outgoing';
+      outgoing.innerHTML = `
+        ${escapeHtml(text)}
+        <div class="bubble-meta">${timeStr} • ✓</div>
+      `;
+      container.appendChild(outgoing);
+      input.value = '';
+      container.scrollTop = container.scrollHeight;
+
+      // Realistic automated echo reply after 1.2s
+      setTimeout(() => {
+        const incoming = document.createElement('div');
+        incoming.className = 'bubble bubble-incoming';
+        incoming.innerHTML = `
+          Принято! Ключи сессии подтверждены в Note Vault.
+          <div class="bubble-meta">${timeStr}</div>
+        `;
+        container.appendChild(incoming);
+        container.scrollTop = container.scrollHeight;
+      }, 1100);
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // Audio Playback Simulation
+    function toggleAudioWave(card) {
+      const bars = card.querySelectorAll('.wave-bar');
+      const timer = card.querySelector('.audio-timer');
+      let count = 0;
+      bars.forEach(b => b.classList.remove('active'));
+
+      const interval = setInterval(() => {
+        if (count < bars.length) {
+          bars[count].classList.add('active');
+          count++;
+          timer.textContent = '0:' + (18 + Math.floor(count * 1.2)).toString().padStart(2, '0');
+        } else {
+          clearInterval(interval);
+        }
+      }, 120);
+    }
+
+    function simulateVoiceRecord() {
+      const input = document.getElementById('messageInputField');
+      input.placeholder = "🎙️ Запись голосовой заметки (0:03)...";
+      setTimeout(() => {
+        input.placeholder = "Зашифрованное сообщение...";
+      }, 2500);
+    }
+
+    function triggerSecretAttachment() {
+      const input = document.getElementById('messageInputField');
+      input.value = "🔒 [Самоуничтожающийся файл: 60 сек]";
+      input.focus();
+    }
+
+    function openNewChatPrompt() {
+      const name = prompt("Введите имя или Vault ID нового контакта:", "Elena Voronova");
+      if (name) openChatWith(name);
+    }
+
+    function toggleIsland() {
+      const island = document.querySelector('.island-container');
+      island.style.width = island.style.width === '160px' ? '96px' : '160px';
+    }
+
+    // Live Clock updater
+    function updateClock() {
+      const d = new Date();
+      const clock = document.getElementById('live-clock');
+      if (clock) {
+        clock.textContent = d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+      }
+    }
+    setInterval(updateClock, 10000);
+    updateClock();
+
+    // ============================================================
+    // PLATFORM SWITCHER SCRIPT
+    // ============================================================
+    function switchPlatform(platform) {
+      const mobileWrapper = document.getElementById('mobile-platform-wrapper');
+      const desktopWrapper = document.getElementById('desktop-platform-wrapper');
+      const btnMobile = document.getElementById('platform-btn-mobile');
+      const btnDesktop = document.getElementById('platform-btn-desktop');
+
+      if (platform === 'mobile') {
+        mobileWrapper.style.display = 'flex';
+        desktopWrapper.style.display = 'none';
+        btnMobile.classList.add('active');
+        btnDesktop.classList.remove('active');
+      } else {
+        mobileWrapper.style.display = 'none';
+        desktopWrapper.style.display = 'flex';
+        btnMobile.classList.remove('active');
+        btnDesktop.classList.add('active');
+      }
+    }
+
+    // ============================================================
+    // PC / DESKTOP SPECIFIC INTERACTIONS (Note Vault Console)
+    // ============================================================
+    function pcSelectChat(card, name, initials, tier) {
+      document.querySelectorAll('.pc-enclave-node').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+
+      document.getElementById('pcActiveTitle').textContent = name;
+      document.getElementById('pcActiveAvatar').textContent = initials;
+      document.getElementById('pcDetailsName').textContent = name;
+      const tierEl = document.getElementById('pcDetailsTier');
+      if (tierEl && tier) tierEl.textContent = tier;
+    }
+
+    function pcSwitchMatrixTab(btn, mode) {
+      document.querySelectorAll('.pc-matrix-tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const nodes = document.querySelectorAll('.pc-enclave-node');
+      nodes.forEach(node => {
+        if (mode === 'all') node.style.display = 'flex';
+        else if (mode === 'keys') node.style.display = node.textContent.includes('Vault') ? 'flex' : 'none';
+        else if (mode === 'notes') node.style.display = node.textContent.includes('Alexandre') ? 'flex' : 'none';
+      });
+    }
+
+    function pcSearchChats(query) {
+      const q = query.toLowerCase().trim();
+      const nodes = document.querySelectorAll('.pc-enclave-node');
+      nodes.forEach(node => {
+        const name = node.getAttribute('data-name') || '';
+        const preview = node.querySelector('.pc-enclave-preview').textContent.toLowerCase();
+        node.style.display = (name.includes(q) || preview.includes(q)) ? 'flex' : 'none';
+      });
+    }
+
+    function pcToggleInfo() {
+      const panel = document.getElementById('pcDetailsPanel');
+      const btn = document.getElementById('pcInspectorToggleBtn');
+      panel.classList.toggle('hidden');
+      if (btn) btn.classList.toggle('active');
+    }
+
+    function pcSendMessage() {
+      const input = document.getElementById('pcMessageInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const container = document.getElementById('pcMessagesContainer');
+      const now = new Date();
+      const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+      const card = document.createElement('div');
+      card.className = 'pc-transmission-card outgoing';
+      card.innerHTML = `
+        <div class="pc-transmission-card-header">
+          <span>YOU (ENCRYPTED)</span>
+          <span>•</span>
+          <span>${timeStr}</span>
+          <span>•</span>
+          <span>✓</span>
+        </div>
+        <div class="pc-transmission-bubble">
+          ${escapeHtml(text)}
+        </div>
+      `;
+      container.appendChild(card);
+      input.value = '';
+      container.scrollTop = container.scrollHeight;
+
+      // Realistic automated echo reply
+      setTimeout(() => {
+        const reply = document.createElement('div');
+        reply.className = 'pc-transmission-card incoming';
+        reply.innerHTML = `
+          <div class="pc-transmission-card-header">
+            <span>ALEXANDRE R.</span>
+            <span>•</span>
+            <span style="color: var(--accent-emerald);">✓ SIGNED</span>
+            <span>•</span>
+            <span>${timeStr}</span>
+          </div>
+          <div class="pc-transmission-bubble">
+            Передача зашифрована и сохранена в анклаве Note Vault.
+          </div>
+        `;
+        container.appendChild(reply);
+        container.scrollTop = container.scrollHeight;
+      }, 1000);
+    }
+
+    function pcAddVaultSnippet() {
+      const input = document.getElementById('pcMessageInput');
+      input.value = "🔒 [Одноразовый ключ Note Vault: session_key_44f19]";
+      input.focus();
+    }
+
+    function pcToggleAudio(deck) {
+      const bars = deck.querySelectorAll('.pc-spec-bar');
+      const timer = deck.querySelector('.pc-audio-timer');
+      let count = 0;
+      bars.forEach(b => b.classList.remove('lit'));
+
+      const interval = setInterval(() => {
+        if (count < bars.length) {
+          bars[count].classList.add('lit');
+          count++;
+          if (timer) timer.textContent = '0:' + (18 + Math.floor(count * 1.2)).toString().padStart(2, '0');
+        } else {
+          clearInterval(interval);
+        }
+      }, 130);
+    }
+
+    // Dynamic Entropy Stream Generator
+    function randomizeEntropy() {
+      const box = document.getElementById('pcEntropyBox');
+      if (!box) return;
+      const hexChars = "0123456789ABCDEF";
+      let rows = "";
+      for (let r = 0; r < 3; r++) {
+        let row = "";
+        for (let b = 0; b < 7; b++) {
+          const byte = hexChars[Math.floor(Math.random()*16)] + hexChars[Math.floor(Math.random()*16)];
+          if (b === 2 || b === 5) {
+            row += `<span class="active">${byte}</span> `;
+          } else {
+            row += (b === 0 ? "0x" : "") + byte + " ";
+          }
+        }
+        rows += `<div>${row.trim()}</div>`;
+      }
+      box.innerHTML = rows;
+    }
+    setInterval(randomizeEntropy, 1400);
+  </script>
+</body>
+</html>
